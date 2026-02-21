@@ -99,6 +99,11 @@ body {
   color: var(--accent);
 }
 
+.icon-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ─── Mode Switcher ──────────────────────────────────────────────────────── */
 
 .mode-switcher {
@@ -137,6 +142,11 @@ body {
 
 .mode-btn:hover {
   background: var(--accent-subtle);
+}
+
+.mode-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .mode-btn.active {
@@ -185,6 +195,11 @@ body {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.toolbar-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .toolbar-label {
@@ -268,6 +283,11 @@ body {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.btn-sm:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .btn-danger {
@@ -386,6 +406,11 @@ body {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .btn.success {

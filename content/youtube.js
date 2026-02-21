@@ -19,10 +19,10 @@
         }
       }
     }
-    // Fallback: try ytInitialData for some page layouts
+    // Fallback: try a more permissive regex allowing whitespace before semicolon
     for (const script of document.querySelectorAll('script')) {
       const text = script.textContent || '';
-      const match = text.match(/ytInitialPlayerResponse\s*=\s*(\{.+?\})\s*;/s);
+      const match = text.match(/ytInitialPlayerResponse\s*=\s*(\{.+\})\s*;/s);
       if (match) {
         try {
           return JSON.parse(match[1]);

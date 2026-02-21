@@ -3,7 +3,7 @@
 mdyoink does not collect, store, or transmit any user data.
 
 - No analytics or telemetry
-- No external network requests
+- No external network requests (except same-origin YouTube transcript fetching)
 - No user accounts or sign-in
 - All data stays local in your browser
 

@@ -98,7 +98,7 @@ async function extractContent() {
       siteName: response.siteName || '',
       excerpt: response.excerpt || '',
       publishedTime: response.publishedTime || '',
-      selection: response.hasSelection ? '' : '',
+      selection: response.hasSelection ? (response.selection || '') : '',
     };
 
     // Set up domain selector panel

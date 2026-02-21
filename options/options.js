@@ -194,14 +194,22 @@ async function handleImportFile(e) {
     const text = await file.text();
     const imported = JSON.parse(text);
 
-    if (typeof imported !== 'object' || Array.isArray(imported)) {
-      alert('Invalid format: expected a JSON object with domain → selector mappings');
+    if (typeof imported !== 'object' || Array.isArray(imported) || imported === null) {
+      alert('Invalid format: expected a JSON object with domain \u2192 selector mappings');
       return;
+    }
+
+    // Sanitize: only allow string keys to string values, skip dangerous keys
+    const safeImported = Object.create(null);
+    for (const key of Object.keys(imported)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+      if (typeof imported[key] !== 'string') continue;
+      safeImported[key] = imported[key];
     }
 
     const data = await chrome.storage.local.get('domainSelectors');
     const existing = data.domainSelectors || {};
-    const merged = Object.assign(existing, imported);
+    const merged = Object.assign({}, existing, safeImported);
     await chrome.storage.local.set({ domainSelectors: merged });
     loadDomainSelectors();
   } catch (err) {

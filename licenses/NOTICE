@@ -1,0 +1,18 @@
+Third-Party Licenses
+====================
+
+Readability.js
+  Copyright (c) 2010 Arc90 Inc
+  Licensed under the Apache License, Version 2.0
+  See: licenses/Apache-2.0.txt
+  Source: https://github.com/mozilla/readability
+
+Turndown
+  Copyright (c) 2017 Dom Christie
+  Licensed under the MIT License
+  Source: https://github.com/mixmark-io/turndown
+
+Turndown Plugin GFM
+  Copyright (c) 2017 Dom Christie
+  Licensed under the MIT License
+  Source: https://github.com/mixmark-io/turndown-plugin-gfm

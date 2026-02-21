@@ -8,9 +8,9 @@ A minimal Chrome/Brave extension that converts any webpage (or selection) to cle
 
 ## Features
 
-- **Three output modes** — LLM (strips images, links, and front matter for token efficiency), Obsidian (full YAML front matter), and Raw (clean markdown)
+- **Three output modes** — LLM (strips images, links, and front matter for token efficiency), Obsidian (full YAML front matter), and Raw (clean Markdown)
 - **Token counter** — approximate token count with model context percentage (Claude 200k, GPT-4 128k, Gemini 1M, etc.)
-- **Strip links toggle** — remove URLs from markdown links to save tokens
+- **Strip links toggle** — remove URLs from Markdown links to save tokens
 - **Append to clipboard** — accumulate clips from multiple pages with `---` separators, then paste all at once
 - **Domain CSS selectors** — save custom selectors for repeat-visit sites (docs, MDN, etc.) for precise extraction
 - **YouTube transcript extraction** — pulls video transcripts directly from the page, no API key needed
@@ -45,7 +45,7 @@ Optimized for pasting into Claude, ChatGPT, or other LLMs. Strips image referenc
 Full YAML front matter with title, URL, and date. Keeps all images and links intact. Ready to drop into your vault.
 
 ### Raw Mode
-Clean markdown conversion with no modifications. Just the Turndown output.
+Clean Markdown conversion with no modifications. Just the Turndown output.
 
 ## Context Menu
 

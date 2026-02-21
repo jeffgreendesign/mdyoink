@@ -76,13 +76,16 @@ async function getDomainSelector(domain) {
 // ─── Content Extraction ─────────────────────────────────────────────────────
 
 async function injectAndExtract(tabId, options = {}) {
-  const { returnMarkdown = true } = options;
+  const { returnMarkdown = true, tabUrl = '' } = options;
   const settings = await getSettings();
 
-  // Get the tab URL to determine domain
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const tabUrl = tab?.url || '';
-  const domain = new URL(tabUrl).hostname;
+  // Use the provided tab URL for domain detection
+  let domain = '';
+  try {
+    domain = new URL(tabUrl).hostname;
+  } catch (e) {
+    // Invalid URL, domain stays empty
+  }
   const domainSelector = await getDomainSelector(domain);
 
   const turndownOptions = {
@@ -178,7 +181,7 @@ async function processResult(result, mode) {
     title: result.title || '',
     url: result.url || '',
     domain: result.domain || '',
-    selection: result.hasSelection ? '' : '',
+    selection: result.hasSelection ? (result.selection || '') : '',
   };
 
   if (result.isYouTube) {
@@ -222,7 +225,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
       case 'download-page':
       case 'copy-page': {
-        const result = await injectAndExtract(tab.id, { returnMarkdown: true });
+        const result = await injectAndExtract(tab.id, { returnMarkdown: true, tabUrl: tab.url });
         const processed = await processResult(result, mode);
         if (processed.error) return;
 
@@ -236,7 +239,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
       case 'download-selection':
       case 'copy-selection': {
-        const result = await injectAndExtract(tab.id, { returnMarkdown: true });
+        const result = await injectAndExtract(tab.id, { returnMarkdown: true, tabUrl: tab.url });
         const processed = await processResult(result, mode);
         if (processed.error) return;
 
@@ -263,7 +266,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   const mode = settings.outputMode || 'llm';
 
   try {
-    const result = await injectAndExtract(tab.id, { returnMarkdown: true });
+    const result = await injectAndExtract(tab.id, { returnMarkdown: true, tabUrl: tab.url });
     const processed = await processResult(result, mode);
     if (processed.error) return;
 

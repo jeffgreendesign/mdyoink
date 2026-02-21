@@ -18,7 +18,7 @@
       <h2 class="section-title">Output Modes</h2>
 
       <div class="field">
-        <label class="field-label">Default output mode</label>
+        <label class="field-label" for="outputMode">Default output mode</label>
         <p class="field-desc">Which mode the popup opens in</p>
         <select id="outputMode" class="select">
           <option value="llm">LLM</option>
@@ -32,7 +32,7 @@
 
         <div class="field field-row">
           <div>
-            <label class="field-label">Strip links</label>
+            <label class="field-label" for="llmStripLinks">Strip links</label>
             <p class="field-desc">Remove URLs from markdown links</p>
           </div>
           <label class="toggle">
@@ -43,7 +43,7 @@
 
         <div class="field field-row">
           <div>
-            <label class="field-label">Strip images</label>
+            <label class="field-label" for="llmStripImages">Strip images</label>
             <p class="field-desc">Remove image references</p>
           </div>
           <label class="toggle">
@@ -54,7 +54,7 @@
 
         <div class="field field-row">
           <div>
-            <label class="field-label">Strip front matter</label>
+            <label class="field-label" for="llmStripFrontMatter">Strip front matter</label>
             <p class="field-desc">No YAML front matter in LLM mode</p>
           </div>
           <label class="toggle">
@@ -64,7 +64,7 @@
         </div>
 
         <div class="field">
-          <label class="field-label">Source line format</label>
+          <label class="field-label" for="llmSourceLine">Source line format</label>
           <p class="field-desc">Template for the source line. Use {url}, {title}, {domain}</p>
           <input type="text" id="llmSourceLine" class="input" value="Source: {url}">
         </div>
@@ -74,7 +74,7 @@
         <h3 class="field-group-title">Obsidian Mode</h3>
 
         <div class="field">
-          <label class="field-label">Front matter template</label>
+          <label class="field-label" for="obsidianFrontMatter">Front matter template</label>
           <p class="field-desc">YAML front matter. Use {title}, {url}, {date}, {date:YYYY-MM-DD}, {domain}, {selection}</p>
           <textarea id="obsidianFrontMatter" class="textarea" rows="5">---
 title: {title}
@@ -90,7 +90,7 @@ date: {date:YYYY-MM-DD}
       <h2 class="section-title">Token Counter</h2>
 
       <div class="field">
-        <label class="field-label">Default model</label>
+        <label class="field-label" for="tokenModel">Default model</label>
         <p class="field-desc">Context window reference for percentage display</p>
         <select id="tokenModel" class="select">
           <option value="Claude 200k">Claude 200k</option>
@@ -103,7 +103,7 @@ date: {date:YYYY-MM-DD}
 
       <div class="field field-row">
         <div>
-          <label class="field-label">Show token counter</label>
+          <label class="field-label" for="tokenShow">Show token counter</label>
           <p class="field-desc">Display in popup footer</p>
         </div>
         <label class="toggle">
@@ -118,7 +118,7 @@ date: {date:YYYY-MM-DD}
       <h2 class="section-title">Markdown Formatting</h2>
 
       <div class="field">
-        <label class="field-label">Heading style</label>
+        <label class="field-label" for="mdHeadingStyle">Heading style</label>
         <select id="mdHeadingStyle" class="select">
           <option value="atx"># ATX (hash)</option>
           <option value="setext">Setext (underline)</option>
@@ -126,7 +126,7 @@ date: {date:YYYY-MM-DD}
       </div>
 
       <div class="field">
-        <label class="field-label">Bullet list marker</label>
+        <label class="field-label" for="mdBulletMarker">Bullet list marker</label>
         <select id="mdBulletMarker" class="select">
           <option value="-">- (dash)</option>
           <option value="*">* (asterisk)</option>
@@ -135,7 +135,7 @@ date: {date:YYYY-MM-DD}
       </div>
 
       <div class="field">
-        <label class="field-label">Code block style</label>
+        <label class="field-label" for="mdCodeBlockStyle">Code block style</label>
         <select id="mdCodeBlockStyle" class="select">
           <option value="fenced">``` Fenced</option>
           <option value="indented">Indented</option>
@@ -143,7 +143,7 @@ date: {date:YYYY-MM-DD}
       </div>
 
       <div class="field">
-        <label class="field-label">Link style</label>
+        <label class="field-label" for="mdLinkStyle">Link style</label>
         <select id="mdLinkStyle" class="select">
           <option value="inlined">[text](url) Inline</option>
           <option value="referenced">[text][1] Reference</option>
@@ -152,7 +152,7 @@ date: {date:YYYY-MM-DD}
 
       <div class="field field-row">
         <div>
-          <label class="field-label">Include images</label>
+          <label class="field-label" for="mdIncludeImages">Include images</label>
           <p class="field-desc">Include image references in markdown</p>
         </div>
         <label class="toggle">
@@ -167,7 +167,7 @@ date: {date:YYYY-MM-DD}
       <h2 class="section-title">Downloads</h2>
 
       <div class="field">
-        <label class="field-label">Filename template</label>
+        <label class="field-label" for="downloadFilename">Filename template</label>
         <p class="field-desc">Use {title} for page title. Auto-slugified, .md appended</p>
         <input type="text" id="downloadFilename" class="input" value="{title}">
       </div>
@@ -198,7 +198,7 @@ date: {date:YYYY-MM-DD}
       <h2 class="section-title">YouTube</h2>
 
       <div class="field">
-        <label class="field-label">Transcript timestamps</label>
+        <label class="field-label" for="ytTimestamps">Transcript timestamps</label>
         <p class="field-desc">When to show timestamps in transcript output</p>
         <select id="ytTimestamps" class="select">
           <option value="always">Always</option>
@@ -208,7 +208,7 @@ date: {date:YYYY-MM-DD}
       </div>
 
       <div class="field">
-        <label class="field-label">Transcript format</label>
+        <label class="field-label" for="ytFormat">Transcript format</label>
         <p class="field-desc">How to format transcript text</p>
         <select id="ytFormat" class="select">
           <option value="auto">Auto (paragraphs for LLM, timestamped for Obsidian)</option>

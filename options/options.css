@@ -227,6 +227,11 @@ body {
   transform: translateX(18px);
 }
 
+.toggle input:focus-visible + .toggle-slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
 
 .btn {
@@ -250,6 +255,11 @@ body {
   background: var(--accent-subtle);
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .btn-sm {
@@ -315,6 +325,11 @@ body {
 
 .selector-item-delete:hover {
   background: rgba(239, 68, 68, 0.1);
+}
+
+.selector-item-delete:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
 }
 
 .selector-add-row {

@@ -55,7 +55,12 @@
   }
 
   function extractWithSelector(selector) {
-    const el = document.querySelector(selector);
+    var el;
+    try {
+      el = document.querySelector(selector);
+    } catch (e) {
+      return null; // Invalid selector syntax
+    }
     if (!el) {
       return null; // Selector didn't match
     }
@@ -108,7 +113,12 @@
 
     // Handle selector testing
     if (testSelector) {
-      const el = document.querySelector(testSelector);
+      var el;
+      try {
+        el = document.querySelector(testSelector);
+      } catch (e) {
+        return { matched: false, error: 'Invalid selector syntax' };
+      }
       if (el) {
         // Briefly highlight the element
         const origOutline = el.style.outline;
@@ -143,6 +153,7 @@
     // Check for selection first
     const selectionHtml = getSelectionHtml();
     if (selectionHtml) {
+      const selectionText = window.getSelection().toString();
       result = {
         html: selectionHtml,
         title: document.title,
@@ -152,8 +163,9 @@
         publishedTime: '',
         length: selectionHtml.length,
         hasSelection: true,
+        selection: selectionText,
       };
-      metadata.selection = window.getSelection().toString();
+      metadata.selection = selectionText;
     }
     // Then try domain-specific selector
     else if (domainSelector) {
