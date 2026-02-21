@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=420">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1 class="header-title">mdyoink</h1>
+    <button class="icon-btn" id="settingsBtn" title="Settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="2.5"/>
+        <path d="M8 1v2M8 13v2M1 8h2M13 8h2M2.93 2.93l1.41 1.41M11.66 11.66l1.41 1.41M2.93 13.07l1.41-1.41M11.66 4.34l1.41-1.41"/>
+      </svg>
+    </button>
+  </header>
+
+  <!-- Mode Switcher -->
+  <div class="mode-switcher">
+    <button class="mode-btn active" data-mode="llm">LLM</button>
+    <button class="mode-btn" data-mode="obsidian">Obsidian</button>
+    <button class="mode-btn" data-mode="raw">Raw</button>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="toolbar-btn" id="stripLinksBtn" title="Strip URLs (saves tokens)">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6.5 9.5l3-3M9 7l2.5-2.5a2.12 2.12 0 00-3-3L6 4"/>
+        <path d="M7 9l-2.5 2.5a2.12 2.12 0 003 3L10 12"/>
+      </svg>
+      <span class="toolbar-label" id="stripLinksLabel">links off</span>
+    </button>
+    <button class="toolbar-btn" id="appendBtn" title="Append to clipboard">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <line x1="8" y1="4" x2="8" y2="12"/>
+        <line x1="4" y1="8" x2="12" y2="8"/>
+      </svg>
+      <span class="toolbar-label">append</span>
+      <span class="badge hidden" id="appendBadge">0</span>
+    </button>
+    <button class="toolbar-btn" id="selectorBtn" title="Domain CSS selector">
+      <span class="selector-icon">&#127919;</span>
+      <span class="toolbar-label">selector</span>
+    </button>
+  </div>
+
+  <!-- Domain Selector Panel (hidden by default) -->
+  <div class="selector-panel hidden" id="selectorPanel">
+    <div class="selector-domain" id="selectorDomain"></div>
+    <div class="selector-row">
+      <input type="text" class="selector-input" id="selectorInput" placeholder="e.g. article, .docs-content, main">
+      <button class="btn-sm" id="selectorTest">Test</button>
+      <button class="btn-sm" id="selectorSave">Save</button>
+      <button class="btn-sm btn-danger" id="selectorClear">Clear</button>
+    </div>
+    <div class="selector-status hidden" id="selectorStatus"></div>
+  </div>
+
+  <!-- Editor / Preview -->
+  <div class="editor-container">
+    <textarea class="editor" id="editor" spellcheck="false" placeholder="Extracting content..."></textarea>
+    <div class="editor-status hidden" id="editorStatus"></div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions">
+    <button class="btn btn-primary" id="copyBtn">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="5" y="5" width="9" height="9" rx="1.5"/>
+        <path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/>
+      </svg>
+      <span id="copyLabel">Copy</span>
+    </button>
+    <button class="btn btn-secondary" id="downloadBtn">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 2v9M4.5 7.5L8 11l3.5-3.5"/>
+        <path d="M2 12v1.5A1.5 1.5 0 003.5 15h9a1.5 1.5 0 001.5-1.5V12"/>
+      </svg>
+      <span>Download</span>
+    </button>
+  </div>
+
+  <!-- Footer / Token Counter -->
+  <footer class="footer" id="footer">
+    <div class="token-info">
+      <span id="tokenCount">~0 tokens</span>
+      <span class="token-separator">&middot;</span>
+      <span id="tokenPercent">0% of Claude 200k</span>
+    </div>
+    <div class="token-bar-container">
+      <div class="token-bar" id="tokenBar" style="width: 0%"></div>
+    </div>
+    <div class="attribution">
+      by Jeff Green &middot; v0.1.0
+    </div>
+  </footer>
+
+  <script src="../lib/turndown.js"></script>
+  <script src="../lib/turndown-plugin-gfm.js"></script>
+  <script src="popup.js" type="module"></script>
+</body>
+</html>
