@@ -1,6 +1,6 @@
 # mdyoink
 
-Yoink any webpage into clean, LLM-ready markdown.
+Yoink any webpage into clean, LLM-ready Markdown.
 
 A minimal Chrome/Brave extension that converts any webpage (or selection) to clean Markdown and lets you copy or download it. Built for the LLM-first workflow: clip a webpage, strip the noise, and paste optimized context into Claude, ChatGPT, or your Obsidian vault.
 

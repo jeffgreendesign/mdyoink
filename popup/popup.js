@@ -1,14 +1,14 @@
 // mdyoink popup logic
 import {
   applyMode, stripLinks, stripImages, estimateTokens,
-  slugifyFilename, formatYouTubeTranscript,
+  slugifyFilename, formatYouTubeTranscript, deepMerge,
   MODEL_CONTEXTS, DEFAULT_SETTINGS,
 } from '../lib/output-modes.js';
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
 let currentMode = 'llm';
-let settings = { ...DEFAULT_SETTINGS };
+let settings = structuredClone(DEFAULT_SETTINGS);
 let rawMarkdown = '';
 let rawHtml = '';
 let metadata = {};
@@ -47,7 +47,7 @@ const modeBtns = document.querySelectorAll('.mode-btn');
 
 async function loadSettings() {
   const data = await chrome.storage.local.get(['settings', 'outputMode']);
-  settings = Object.assign({}, DEFAULT_SETTINGS, data.settings || {});
+  settings = deepMerge(structuredClone(DEFAULT_SETTINGS), data.settings || {});
   currentMode = data.outputMode || settings.outputMode || 'llm';
   updateModeUI();
 }
@@ -221,7 +221,9 @@ function updateTokenCount() {
 
 function updateModeUI() {
   modeBtns.forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.mode === currentMode);
+    const isActive = btn.dataset.mode === currentMode;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
   });
   // Reset strip links override when switching modes
   stripLinksOverride = null;
@@ -332,6 +334,9 @@ async function testSelector() {
   if (result?.matched) {
     selectorStatus.classList.add('success');
     selectorStatus.textContent = `Matched: <${result.tagName.toLowerCase()}> (${result.textLength} chars)`;
+  } else if (result?.error) {
+    selectorStatus.classList.add('error');
+    selectorStatus.textContent = result.error;
   } else {
     selectorStatus.classList.add('error');
     selectorStatus.textContent = 'No match found for this selector';

@@ -1,7 +1,7 @@
 // mdyoink service worker (Manifest V3)
 // ES module — all event listeners registered at top level
 
-import { applyMode, stripLinks, stripImages, slugifyFilename, DEFAULT_SETTINGS } from './lib/output-modes.js';
+import { applyMode, slugifyFilename, formatYouTubeTranscript, DEFAULT_SETTINGS } from './lib/output-modes.js';
 
 // ─── Context Menus ──────────────────────────────────────────────────────────
 
@@ -186,7 +186,6 @@ async function processResult(result, mode) {
 
   if (result.isYouTube) {
     // YouTube transcript — format according to mode
-    const { formatYouTubeTranscript } = await import('./lib/output-modes.js');
     const ytFormatted = formatYouTubeTranscript(result, mode, settings);
     markdown = ytFormatted.markdown;
   }
@@ -312,7 +311,12 @@ async function handleExtractContent(message) {
     // For popup flow: don't inject Turndown (popup has it locally)
     // But DO inject Readability and content script
     const tabUrl = tab.url || '';
-    const domain = new URL(tabUrl).hostname;
+    let domain = '';
+    try {
+      domain = new URL(tabUrl).hostname;
+    } catch (e) {
+      // Invalid URL (chrome://, about:blank, etc.) — domain stays empty
+    }
     const domainSelector = await getDomainSelector(domain);
     const isYouTube = tabUrl.includes('youtube.com/watch');
 

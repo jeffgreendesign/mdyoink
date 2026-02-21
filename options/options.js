@@ -1,5 +1,5 @@
 // mdyoink options page logic
-import { DEFAULT_SETTINGS } from '../lib/output-modes.js';
+import { DEFAULT_SETTINGS, deepMerge } from '../lib/output-modes.js';
 
 // ─── DOM References ─────────────────────────────────────────────────────────
 
@@ -31,12 +31,12 @@ const elements = {
 
 // ─── Settings Management ────────────────────────────────────────────────────
 
-let settings = { ...DEFAULT_SETTINGS };
+let settings = structuredClone(DEFAULT_SETTINGS);
 let saveTimeout = null;
 
 async function loadSettings() {
   const data = await chrome.storage.local.get('settings');
-  settings = Object.assign({}, DEFAULT_SETTINGS, data.settings || {});
+  settings = deepMerge(structuredClone(DEFAULT_SETTINGS), data.settings || {});
   populateUI();
 }
 

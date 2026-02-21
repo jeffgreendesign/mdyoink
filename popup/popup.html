@@ -18,10 +18,10 @@
   </header>
 
   <!-- Mode Switcher -->
-  <div class="mode-switcher">
-    <button class="mode-btn active" data-mode="llm">LLM</button>
-    <button class="mode-btn" data-mode="obsidian">Obsidian</button>
-    <button class="mode-btn" data-mode="raw">Raw</button>
+  <div class="mode-switcher" role="radiogroup" aria-label="Output mode">
+    <button class="mode-btn active" data-mode="llm" role="radio" aria-checked="true">LLM</button>
+    <button class="mode-btn" data-mode="obsidian" role="radio" aria-checked="false">Obsidian</button>
+    <button class="mode-btn" data-mode="raw" role="radio" aria-checked="false">Raw</button>
   </div>
 
   <!-- Toolbar -->
@@ -51,6 +51,7 @@
   <div class="selector-panel hidden" id="selectorPanel">
     <div class="selector-domain" id="selectorDomain"></div>
     <div class="selector-row">
+      <label for="selectorInput" class="visually-hidden">CSS selector</label>
       <input type="text" class="selector-input" id="selectorInput" placeholder="e.g. article, .docs-content, main">
       <button class="btn-sm" id="selectorTest">Test</button>
       <button class="btn-sm" id="selectorSave">Save</button>
