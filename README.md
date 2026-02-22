@@ -9,6 +9,8 @@ A minimal Chrome/Brave extension that converts any webpage (or selection) to cle
 ## Features
 
 - **Three output modes** — LLM (strips images, links, and front matter for token efficiency), Obsidian (full YAML front matter), and Raw (clean Markdown)
+- **Extraction scope** — switch between Article (Readability auto-extract), Full Page, or Selection with one click
+- **Element picker** — click any element on the page to extract just that region as Markdown
 - **Token counter** — approximate token count with model context percentage (Claude 200k, GPT-4 128k, Gemini 1M, etc.)
 - **Strip links toggle** — remove URLs from Markdown links to save tokens
 - **Append to clipboard** — accumulate clips from multiple pages with `---` separators, then paste all at once
@@ -54,6 +56,25 @@ Right-click on any page to access:
 - Download/copy **selection** as Markdown
 - Copy **link** as `[text](url)`
 - Copy **image** as `![alt](src)`
+
+## Extraction Scope
+
+Control what content gets extracted using the scope switcher in the popup:
+
+- **Article** (default) — uses Readability to auto-extract the main article content, stripping navigation, sidebars, and ads
+- **Full Page** — extracts the entire page body, including headers, footers, and navigation
+- **Selection** — extracts only the text you've highlighted on the page (disabled if nothing is selected)
+
+## Element Picker
+
+For precise control over what gets extracted:
+
+1. Click the **pick** button in the popup toolbar
+2. The popup closes and the page gets a hover overlay
+3. Move your mouse over elements — they highlight with a purple border and show their CSS selector
+4. Click an element to extract it — the popup reopens with that element's Markdown
+5. The picked element's CSS selector is pre-filled in the domain selector panel so you can save it for future visits
+6. Press **Esc** or right-click to cancel
 
 ## Domain Selectors
 

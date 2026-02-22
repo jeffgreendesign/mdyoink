@@ -5,6 +5,9 @@
 - Manifest V3 Chrome extension: service worker (ES module), popup, options page, on-demand content scripts
 - Libraries vendored in lib/ — no npm, no build step
 - activeTab permission model — scripts injected on demand via chrome.scripting.executeScript
+- Content scripts: content/content.js (extraction), content/youtube.js (YouTube transcripts), content/picker.js (element picker)
+- Extraction scope: controlled by `scope` parameter ('article' | 'fullpage' | 'selection' | null) passed through service worker to content script
+- Element picker uses chrome.storage.session to pass results back to popup (popup closes during picking, reopens via chrome.action.openPopup)
 
 ## Code Rules
 
@@ -25,6 +28,14 @@
 - Every interactive element needs a :focus-visible style using var(--accent).
 - Form inputs need associated label elements (use .visually-hidden if label should be invisible).
 - Radio-like button groups need role="radiogroup" on the container and role="radio" + aria-checked on each button. Toggle aria-checked in JS when selection changes.
+
+### Picker & Injected Scripts
+
+- content/picker.js is a self-contained IIFE — all styles are inline (no CSS files) to avoid page CSS conflicts.
+- Picker event listeners use capture phase (third arg `true`) to intercept before page handlers.
+- Guard against double injection with `window.__mdyoink_picker_active`.
+- Guard `el.className` with `typeof === 'string'` check — SVG elements have SVGAnimatedString, not a string.
+- Picker communicates back to service worker via chrome.runtime.sendMessage, not window globals.
 
 ### Consistency
 
