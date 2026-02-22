@@ -10,6 +10,7 @@
   function isYouTubePage() {
     const hostname = window.location.hostname;
     const pathname = window.location.pathname;
+    if (hostname === 'youtu.be' && pathname.length > 1) return true;
     return hostname.includes('youtube.com') &&
       (pathname === '/watch' || pathname.startsWith('/shorts/') || pathname.startsWith('/embed/'));
   }
