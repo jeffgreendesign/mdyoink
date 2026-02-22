@@ -112,6 +112,7 @@
       turndownOptions = {},
       domainSelector = null,
       testSelector = null,
+      scope = null, // 'article' | 'fullpage' | 'selection' | null
     } = config;
 
     // Handle selector testing
@@ -151,38 +152,74 @@
       }
     }
 
+    // Always check for selection so we can report availability
+    const selectionHtml = getSelectionHtml();
+    const hasSelection = !!selectionHtml;
+
     let result;
 
-    // Check for selection first
-    const selectionHtml = getSelectionHtml();
-    if (selectionHtml) {
-      const selectionText = window.getSelection().toString();
+    if (scope === 'fullpage') {
+      // Full page scope — use document.body directly, skip Readability
       result = {
-        html: selectionHtml,
+        html: document.body.innerHTML,
         title: document.title,
         byline: '',
         siteName: '',
         excerpt: '',
         publishedTime: '',
-        length: selectionHtml.length,
-        hasSelection: true,
-        selection: selectionText,
+        length: document.body.textContent.length,
       };
-      metadata.selection = selectionText;
-    }
-    // Then try domain-specific selector
-    else if (domainSelector) {
-      result = extractWithSelector(domainSelector);
-      if (!result) {
-        // Selector didn't match — fall back to Readability with warning
+    } else if (scope === 'selection') {
+      if (selectionHtml) {
+        const selectionText = window.getSelection().toString();
+        result = {
+          html: selectionHtml,
+          title: document.title,
+          byline: '',
+          siteName: '',
+          excerpt: '',
+          publishedTime: '',
+          length: selectionHtml.length,
+          hasSelection: true,
+          selection: selectionText,
+        };
+        metadata.selection = selectionText;
+      } else {
+        // User requested selection but nothing is selected — fall back with warning
         result = extractWithReadability();
         result.selectorFailed = true;
       }
+    } else {
+      // scope === 'article' or null — original priority logic
+      if (selectionHtml && !scope) {
+        // Auto mode: use selection if present (original behavior)
+        const selectionText = window.getSelection().toString();
+        result = {
+          html: selectionHtml,
+          title: document.title,
+          byline: '',
+          siteName: '',
+          excerpt: '',
+          publishedTime: '',
+          length: selectionHtml.length,
+          hasSelection: true,
+          selection: selectionText,
+        };
+        metadata.selection = selectionText;
+      } else if (domainSelector) {
+        result = extractWithSelector(domainSelector);
+        if (!result) {
+          // Selector didn't match — fall back to Readability with warning
+          result = extractWithReadability();
+          result.selectorFailed = true;
+        }
+      } else {
+        result = extractWithReadability();
+      }
     }
-    // Default: Readability extraction
-    else {
-      result = extractWithReadability();
-    }
+
+    // Always report whether a selection exists
+    result.hasSelection = hasSelection;
 
     // Add metadata
     result.url = url;

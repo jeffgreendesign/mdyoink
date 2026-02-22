@@ -24,6 +24,13 @@
     <button class="mode-btn" data-mode="raw" role="radio" aria-checked="false">Raw</button>
   </div>
 
+  <!-- Extraction Scope Switcher -->
+  <div class="scope-switcher" role="radiogroup" aria-label="Extraction scope">
+    <button class="scope-btn active" data-scope="article" role="radio" aria-checked="true" title="Auto-extract article content">Article</button>
+    <button class="scope-btn" data-scope="fullpage" role="radio" aria-checked="false" title="Extract full page content">Full Page</button>
+    <button class="scope-btn" data-scope="selection" role="radio" aria-checked="false" title="Extract selected text only" id="scopeSelectionBtn">Selection</button>
+  </div>
+
   <!-- Toolbar -->
   <div class="toolbar">
     <button class="toolbar-btn" id="stripLinksBtn" title="Strip URLs (saves tokens)">
@@ -40,6 +47,13 @@
       </svg>
       <span class="toolbar-label">append</span>
       <span class="badge hidden" id="appendBadge">0</span>
+    </button>
+    <button class="toolbar-btn" id="pickerBtn" title="Pick an element from the page">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 3l4 10 1.5-3.5L12 8z"/>
+        <line x1="10" y1="10" x2="14" y2="14"/>
+      </svg>
+      <span class="toolbar-label">pick</span>
     </button>
     <button class="toolbar-btn" id="selectorBtn" title="Domain CSS selector">
       <span class="selector-icon">&#127919;</span>

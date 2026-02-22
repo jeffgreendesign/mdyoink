@@ -8,6 +8,7 @@ import {
 // ─── State ──────────────────────────────────────────────────────────────────
 
 let currentMode = 'llm';
+let currentScope = 'article'; // 'article' | 'fullpage' | 'selection'
 let settings = structuredClone(DEFAULT_SETTINGS);
 let rawMarkdown = '';
 let rawHtml = '';
@@ -42,6 +43,9 @@ const selectorClear = document.getElementById('selectorClear');
 const selectorStatus = document.getElementById('selectorStatus');
 const editorStatus = document.getElementById('editorStatus');
 const modeBtns = document.querySelectorAll('.mode-btn');
+const scopeBtns = document.querySelectorAll('.scope-btn');
+const scopeSelectionBtn = document.getElementById('scopeSelectionBtn');
+const pickerBtn = document.getElementById('pickerBtn');
 
 // ─── Settings ───────────────────────────────────────────────────────────────
 
@@ -82,7 +86,7 @@ function createTurndownService() {
 
 async function extractContent() {
   try {
-    const response = await chrome.runtime.sendMessage({ action: 'extractContent' });
+    const response = await chrome.runtime.sendMessage({ action: 'extractContent', scope: currentScope });
 
     if (!response || response.error) {
       showError(response?.error || 'Failed to extract content');
@@ -100,6 +104,17 @@ async function extractContent() {
       publishedTime: response.publishedTime || '',
       selection: response.hasSelection ? (response.selection || '') : '',
     };
+
+    // Disable selection scope button if no text is selected on the page
+    if (!response.hasSelection) {
+      scopeSelectionBtn.disabled = true;
+      scopeSelectionBtn.title = 'No text selected on page';
+      scopeSelectionBtn.classList.add('disabled');
+    } else {
+      scopeSelectionBtn.disabled = false;
+      scopeSelectionBtn.title = 'Extract selected text only';
+      scopeSelectionBtn.classList.remove('disabled');
+    }
 
     // Set up domain selector panel
     selectorDomain.textContent = metadata.domain;
@@ -236,6 +251,81 @@ function switchMode(mode) {
   updateModeUI();
   if (rawMarkdown || (extractedData?.isYouTube && extractedData?.segments)) {
     renderPreview();
+  }
+}
+
+// ─── Scope Switching ─────────────────────────────────────────────────────────
+
+function updateScopeUI() {
+  scopeBtns.forEach(btn => {
+    const isActive = btn.dataset.scope === currentScope;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+  });
+}
+
+function switchScope(scope) {
+  currentScope = scope;
+  updateScopeUI();
+  extractContent();
+}
+
+// ─── Element Picker ──────────────────────────────────────────────────────────
+
+async function startPicker() {
+  try {
+    await chrome.runtime.sendMessage({ action: 'startPicker' });
+    window.close();
+  } catch (e) {
+    showEditorStatus('Could not start picker', 'error');
+  }
+}
+
+async function loadPickerResult() {
+  try {
+    const session = await chrome.storage.session.get('pickerResult');
+    if (!session.pickerResult) return false;
+
+    const result = session.pickerResult;
+    await chrome.storage.session.remove('pickerResult');
+
+    extractedData = result;
+    metadata = {
+      title: result.title || '',
+      url: result.url || '',
+      domain: result.domain || '',
+      byline: '',
+      siteName: '',
+      excerpt: '',
+      publishedTime: '',
+      selection: '',
+    };
+
+    selectorDomain.textContent = metadata.domain;
+
+    rawHtml = result.html;
+    const turndown = createTurndownService();
+    rawMarkdown = turndown.turndown(rawHtml);
+
+    // Pre-populate domain selector so user can save it
+    selectorInput.value = result.selector;
+    selectorPanel.classList.remove('hidden');
+
+    showEditorStatus(
+      `Picked <${result.tagName}> (${result.textLength} chars)`,
+      'success'
+    );
+
+    // Deselect all scope buttons since picker is a special scope
+    scopeBtns.forEach(btn => {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-checked', 'false');
+    });
+
+    renderPreview();
+    return true;
+  } catch (e) {
+    return false;
   }
 }
 
@@ -437,6 +527,17 @@ appendBtn.addEventListener('contextmenu', (e) => {
   clearAppendStack();
 });
 
+// Scope switcher
+scopeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.disabled) return;
+    switchScope(btn.dataset.scope);
+  });
+});
+
+// Element picker
+pickerBtn.addEventListener('click', startPicker);
+
 // Domain selector
 selectorBtn.addEventListener('click', toggleSelectorPanel);
 selectorTest.addEventListener('click', testSelector);
@@ -460,7 +561,12 @@ editor.addEventListener('input', updateTokenCount);
 async function init() {
   await loadSettings();
   updateStripLinksUI();
-  extractContent();
+
+  // Check for pending picker result before normal extraction
+  const pickerLoaded = await loadPickerResult();
+  if (!pickerLoaded) {
+    extractContent();
+  }
 }
 
 init();

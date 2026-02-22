@@ -312,6 +312,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.action === 'startPicker') {
+    handleStartPicker().then(sendResponse);
+    return true;
+  }
+
+  if (message.action === 'pickerResult') {
+    handlePickerResult(message).then(sendResponse);
+    return true;
+  }
+
+  if (message.action === 'pickerCancelled') {
+    // Picker cleaned itself up; nothing to do
+    sendResponse({ ok: true });
+    return false;
+  }
+
   if (message.action === 'getSettings') {
     getSettings().then(sendResponse);
     return true;
@@ -334,6 +350,7 @@ async function handleExtractContent(message) {
     const domain = parseDomain(tabUrl);
     const domainSelector = await getDomainSelector(domain);
     const isYouTube = isYouTubeUrl(tabUrl);
+    const scope = message.scope || null;
 
     const files = ['lib/readability.js'];
     if (isYouTube) {
@@ -354,13 +371,60 @@ async function handleExtractContent(message) {
         }
         return { error: 'Content script not loaded' };
       },
-      args: [{ returnMarkdown: false, domainSelector }],
+      args: [{ returnMarkdown: false, domainSelector, scope }],
     });
 
     return results?.[0]?.result || { error: 'No result' };
   } catch (e) {
     return { error: e.message || 'Extraction failed' };
   }
+}
+
+async function handleStartPicker() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return { error: 'No active tab' };
+
+  try {
+    // Clear any previous picker result
+    await chrome.storage.session.remove('pickerResult');
+
+    // Inject picker script
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['content/picker.js'],
+    });
+
+    return { ok: true };
+  } catch (e) {
+    return { error: e.message || 'Could not start picker' };
+  }
+}
+
+async function handlePickerResult(message) {
+  // Store the result in session storage for the popup to read
+  await chrome.storage.session.set({
+    pickerResult: {
+      html: message.html,
+      selector: message.selector,
+      tagName: message.tagName,
+      textLength: message.textLength,
+      title: message.title,
+      url: message.url,
+      domain: message.domain,
+    },
+  });
+
+  // Reopen the popup
+  try {
+    await chrome.action.openPopup();
+  } catch (e) {
+    // Fallback: set badge to notify user to click the icon
+    chrome.action.setBadgeText({ text: '1' });
+    chrome.action.setBadgeBackgroundColor({ color: '#6366f1' });
+    setTimeout(() => chrome.action.setBadgeText({ text: '' }), 10000);
+  }
+
+  return { ok: true };
 }
 
 async function handleTestSelector(message) {
