@@ -26,9 +26,97 @@
     return container.innerHTML;
   }
 
+  // ─── Shadow DOM helpers ────────────────────────────────────────────────────
+  // Standard DOM APIs (cloneNode, innerHTML) do not include shadow root
+  // content. These helpers "flatten" open shadow roots so Readability and
+  // other consumers can see the full page content.
+
+  function hasShadowDescendants(el) {
+    if (el.shadowRoot) return true;
+    var descendants = el.querySelectorAll('*');
+    for (var i = 0; i < descendants.length; i++) {
+      if (descendants[i].shadowRoot) return true;
+    }
+    return false;
+  }
+
+  function serializeElementWithShadows(node) {
+    if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+    if (node.nodeType !== Node.ELEMENT_NODE) return '';
+    var tag = node.tagName.toLowerCase();
+    var attrs = '';
+    for (var a = 0; a < node.attributes.length; a++) {
+      var at = node.attributes[a];
+      attrs += ' ' + at.name + '="' +
+        at.value.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"';
+    }
+    if (node.shadowRoot) {
+      return '<' + tag + attrs + '>' +
+        getInnerHtmlWithShadows(node.shadowRoot) + '</' + tag + '>';
+    }
+    if (hasShadowDescendants(node)) {
+      return '<' + tag + attrs + '>' +
+        getInnerHtmlWithShadows(node) + '</' + tag + '>';
+    }
+    return node.outerHTML;
+  }
+
+  function getInnerHtmlWithShadows(node) {
+    if (!node) return '';
+    var children = node.childNodes;
+    if (!children || children.length === 0) {
+      if (node.innerHTML !== undefined) return node.innerHTML;
+      return node.textContent || '';
+    }
+
+    var parts = [];
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      if (child.nodeType === Node.TEXT_NODE) {
+        parts.push(child.textContent);
+      } else if (child.nodeType === Node.COMMENT_NODE) {
+        // skip comments
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        // Resolve <slot> elements to their assigned (projected) content
+        if (child.tagName === 'SLOT' && typeof child.assignedNodes === 'function') {
+          var assigned = child.assignedNodes({ flatten: true });
+          if (assigned.length > 0) {
+            for (var s = 0; s < assigned.length; s++) {
+              parts.push(serializeElementWithShadows(assigned[s]));
+            }
+          } else {
+            // Slot fallback content
+            parts.push(getInnerHtmlWithShadows(child));
+          }
+          continue;
+        }
+        parts.push(serializeElementWithShadows(child));
+      }
+    }
+    return parts.join('');
+  }
+
+  function cloneWithShadowDom(root) {
+    // Fast path — no shadow hosts, just clone normally
+    var allElements = root.querySelectorAll('*');
+    var hasShadow = false;
+    for (var i = 0; i < allElements.length; i++) {
+      if (allElements[i].shadowRoot) { hasShadow = true; break; }
+    }
+    if (!hasShadow) return root.cloneNode(true);
+
+    // Serialize the document with shadow DOM content and <slot> elements
+    // resolved, then re-parse into a clean document for Readability.
+    var headHtml = root.head ? root.head.innerHTML : '';
+    var bodyHtml = getInnerHtmlWithShadows(root.body);
+    var fullHtml = '<!DOCTYPE html><html><head>' + headHtml +
+      '</head><body>' + bodyHtml + '</body></html>';
+    return new DOMParser().parseFromString(fullHtml, 'text/html');
+  }
+
   function extractWithReadability() {
     try {
-      const docClone = document.cloneNode(true);
+      const docClone = cloneWithShadowDom(document);
       const article = new Readability(docClone).parse();
       if (article && article.content) {
         return {
@@ -45,9 +133,9 @@
       // Readability failed, fall back
     }
 
-    // Fallback: use document.body
+    // Fallback: use document.body (with shadow DOM flattening)
     return {
-      html: document.body.innerHTML,
+      html: getInnerHtmlWithShadows(document.body),
       title: document.title,
       byline: '',
       siteName: '',
@@ -68,7 +156,7 @@
       return null; // Selector didn't match
     }
     return {
-      html: el.innerHTML,
+      html: el.shadowRoot ? getInnerHtmlWithShadows(el.shadowRoot) : getInnerHtmlWithShadows(el),
       title: document.title,
       byline: '',
       siteName: '',
@@ -161,7 +249,7 @@
     if (scope === 'fullpage') {
       // Full page scope — use document.body directly, skip Readability
       result = {
-        html: document.body.innerHTML,
+        html: getInnerHtmlWithShadows(document.body),
         title: document.title,
         byline: '',
         siteName: '',

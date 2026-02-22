@@ -66,6 +66,75 @@
   banner.textContent = 'mdyoink: Click an element to extract. Press Esc to cancel.';
   document.documentElement.appendChild(banner);
 
+  // ─── Shadow DOM helper (self-contained copy for IIFE isolation) ─────────
+
+  function getPickedHtml(el) {
+    if (!el.shadowRoot && !hasShadowInSubtree(el)) return el.innerHTML;
+    return el.shadowRoot
+      ? serializeShadowChildren(el.shadowRoot)
+      : serializeShadowChildren(el);
+  }
+
+  function hasShadowInSubtree(node) {
+    if (node.shadowRoot) return true;
+    var descendants = node.querySelectorAll('*');
+    for (var i = 0; i < descendants.length; i++) {
+      if (descendants[i].shadowRoot) return true;
+    }
+    return false;
+  }
+
+  function serializeOneNode(node) {
+    if (node.nodeType === Node.TEXT_NODE) return node.textContent;
+    if (node.nodeType !== Node.ELEMENT_NODE) return '';
+    var tag = node.tagName.toLowerCase();
+    var attrs = '';
+    for (var a = 0; a < node.attributes.length; a++) {
+      var at = node.attributes[a];
+      attrs += ' ' + at.name + '="' +
+        at.value.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"';
+    }
+    if (node.shadowRoot) {
+      return '<' + tag + attrs + '>' +
+        serializeShadowChildren(node.shadowRoot) + '</' + tag + '>';
+    }
+    if (hasShadowInSubtree(node)) {
+      return '<' + tag + attrs + '>' +
+        serializeShadowChildren(node) + '</' + tag + '>';
+    }
+    return node.outerHTML;
+  }
+
+  function serializeShadowChildren(node) {
+    var children = node.childNodes;
+    if (!children || children.length === 0) {
+      if (node.innerHTML !== undefined) return node.innerHTML;
+      return node.textContent || '';
+    }
+    var parts = [];
+    for (var i = 0; i < children.length; i++) {
+      var child = children[i];
+      if (child.nodeType === Node.TEXT_NODE) {
+        parts.push(child.textContent);
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        // Resolve <slot> elements to their projected content
+        if (child.tagName === 'SLOT' && typeof child.assignedNodes === 'function') {
+          var assigned = child.assignedNodes({ flatten: true });
+          if (assigned.length > 0) {
+            for (var s = 0; s < assigned.length; s++) {
+              parts.push(serializeOneNode(assigned[s]));
+            }
+          } else {
+            parts.push(serializeShadowChildren(child));
+          }
+          continue;
+        }
+        parts.push(serializeOneNode(child));
+      }
+    }
+    return parts.join('');
+  }
+
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
   function buildSelector(el) {
@@ -146,7 +215,7 @@
     var target = isPickerElement(e.target) ? getTargetAt(e.clientX, e.clientY) : e.target;
     if (!target || target === document.documentElement || target === document.body) return;
 
-    var html = target.innerHTML;
+    var html = getPickedHtml(target);
     var selector = buildSelector(target);
     var tagName = target.tagName.toLowerCase();
     var textLength = (target.textContent || '').length;
