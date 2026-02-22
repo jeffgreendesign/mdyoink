@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "mdyoink",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Yoink any webpage into clean, LLM-ready markdown",
   "permissions": [
     "activeTab",
