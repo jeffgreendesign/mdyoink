@@ -1,0 +1,54 @@
+{
+  "manifest_version": 3,
+  "name": "mdyoink",
+  "version": "0.1.0",
+  "description": "Yoink any webpage into clean, LLM-ready markdown",
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "downloads",
+    "storage",
+    "contextMenus",
+    "scripting"
+  ],
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "options_page": "options/options.html",
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+M"
+      },
+      "description": "Open mdyoink popup"
+    },
+    "download-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+D"
+      },
+      "description": "Download page as Markdown"
+    },
+    "copy-page": {
+      "suggested_key": {
+        "default": "Alt+Shift+C"
+      },
+      "description": "Copy page as Markdown"
+    }
+  }
+}

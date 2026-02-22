@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mdyoink — Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>mdyoink</h1>
+      <p class="subtitle">Settings</p>
+    </header>
+
+    <!-- Output Modes -->
+    <section class="section">
+      <h2 class="section-title">Output Modes</h2>
+
+      <div class="field">
+        <label class="field-label" for="outputMode">Default output mode</label>
+        <p class="field-desc">Which mode the popup opens in</p>
+        <select id="outputMode" class="select">
+          <option value="llm">LLM</option>
+          <option value="obsidian">Obsidian</option>
+          <option value="raw">Raw</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <h3 class="field-group-title">LLM Mode</h3>
+
+        <div class="field field-row">
+          <div>
+            <label class="field-label" for="llmStripLinks">Strip links</label>
+            <p class="field-desc">Remove URLs from markdown links</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="llmStripLinks" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="field field-row">
+          <div>
+            <label class="field-label" for="llmStripImages">Strip images</label>
+            <p class="field-desc">Remove image references</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="llmStripImages" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="field field-row">
+          <div>
+            <label class="field-label" for="llmStripFrontMatter">Strip front matter</label>
+            <p class="field-desc">No YAML front matter in LLM mode</p>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="llmStripFrontMatter" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="llmSourceLine">Source line format</label>
+          <p class="field-desc">Template for the source line. Use {url}, {title}, {domain}</p>
+          <input type="text" id="llmSourceLine" class="input" value="Source: {url}">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <h3 class="field-group-title">Obsidian Mode</h3>
+
+        <div class="field">
+          <label class="field-label" for="obsidianFrontMatter">Front matter template</label>
+          <p class="field-desc">YAML front matter. Use {title}, {url}, {date}, {date:YYYY-MM-DD}, {domain}, {selection}</p>
+          <textarea id="obsidianFrontMatter" class="textarea" rows="5">---
+title: {title}
+url: {url}
+date: {date:YYYY-MM-DD}
+---</textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Token Counter -->
+    <section class="section">
+      <h2 class="section-title">Token Counter</h2>
+
+      <div class="field">
+        <label class="field-label" for="tokenModel">Default model</label>
+        <p class="field-desc">Context window reference for percentage display</p>
+        <select id="tokenModel" class="select">
+          <option value="Claude 200k">Claude 200k</option>
+          <option value="GPT-4 128k">GPT-4 128k</option>
+          <option value="GPT-4o 128k">GPT-4o 128k</option>
+          <option value="Gemini 1M">Gemini 1M</option>
+          <option value="Llama 10M">Llama 10M</option>
+        </select>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="tokenShow">Show token counter</label>
+          <p class="field-desc">Display in popup footer</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="tokenShow" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Markdown Formatting -->
+    <section class="section">
+      <h2 class="section-title">Markdown Formatting</h2>
+
+      <div class="field">
+        <label class="field-label" for="mdHeadingStyle">Heading style</label>
+        <select id="mdHeadingStyle" class="select">
+          <option value="atx"># ATX (hash)</option>
+          <option value="setext">Setext (underline)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mdBulletMarker">Bullet list marker</label>
+        <select id="mdBulletMarker" class="select">
+          <option value="-">- (dash)</option>
+          <option value="*">* (asterisk)</option>
+          <option value="+">+ (plus)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mdCodeBlockStyle">Code block style</label>
+        <select id="mdCodeBlockStyle" class="select">
+          <option value="fenced">``` Fenced</option>
+          <option value="indented">Indented</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="mdLinkStyle">Link style</label>
+        <select id="mdLinkStyle" class="select">
+          <option value="inlined">[text](url) Inline</option>
+          <option value="referenced">[text][1] Reference</option>
+        </select>
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label class="field-label" for="mdIncludeImages">Include images</label>
+          <p class="field-desc">Include image references in markdown</p>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="mdIncludeImages" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section class="section">
+      <h2 class="section-title">Downloads</h2>
+
+      <div class="field">
+        <label class="field-label" for="downloadFilename">Filename template</label>
+        <p class="field-desc">Use {title} for page title. Auto-slugified, .md appended</p>
+        <input type="text" id="downloadFilename" class="input" value="{title}">
+      </div>
+    </section>
+
+    <!-- Domain Selectors -->
+    <section class="section">
+      <h2 class="section-title">Domain Selectors</h2>
+      <p class="section-desc">Custom CSS selectors for precise content extraction on specific domains</p>
+
+      <div id="selectorsList" class="selectors-list"></div>
+
+      <div class="field selector-add-row">
+        <input type="text" id="newSelectorDomain" class="input" placeholder="e.g. docs.supabase.com">
+        <input type="text" id="newSelectorValue" class="input" placeholder="e.g. article">
+        <button class="btn btn-sm" id="addSelectorBtn">Add</button>
+      </div>
+
+      <div class="field-row" style="gap: 8px; margin-top: 8px;">
+        <button class="btn btn-sm btn-secondary" id="exportSelectorsBtn">Export JSON</button>
+        <button class="btn btn-sm btn-secondary" id="importSelectorsBtn">Import JSON</button>
+        <input type="file" id="importSelectorsFile" accept=".json" style="display: none;">
+      </div>
+    </section>
+
+    <!-- YouTube -->
+    <section class="section">
+      <h2 class="section-title">YouTube</h2>
+
+      <div class="field">
+        <label class="field-label" for="ytTimestamps">Transcript timestamps</label>
+        <p class="field-desc">When to show timestamps in transcript output</p>
+        <select id="ytTimestamps" class="select">
+          <option value="always">Always</option>
+          <option value="obsidian">Obsidian mode only</option>
+          <option value="never">Never</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="ytFormat">Transcript format</label>
+        <p class="field-desc">How to format transcript text</p>
+        <select id="ytFormat" class="select">
+          <option value="auto">Auto (paragraphs for LLM, timestamped for Obsidian)</option>
+          <option value="paragraphs">Paragraphs (flowing text)</option>
+          <option value="timestamped">Timestamped lines</option>
+        </select>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>mdyoink by <a href="https://github.com/jeffgreendesign" target="_blank" rel="noopener">Jeff Green</a> &mdash; <a href="https://github.com/jeffgreendesign/mdyoink" target="_blank" rel="noopener">github.com/jeffgreendesign/mdyoink</a></p>
+    </footer>
+  </div>
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>

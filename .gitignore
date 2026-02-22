@@ -1,0 +1,8 @@
+# npm artifacts — libraries are vendored in lib/, no npm needed at runtime
+node_modules/
+package.json
+package-lock.json
+.DS_Store
+*.zip
+*.crx
+*.pem
