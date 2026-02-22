@@ -3,6 +3,28 @@
 
 import { applyMode, slugifyFilename, formatYouTubeTranscript, deepMerge, DEFAULT_SETTINGS } from './lib/output-modes.js';
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+function escapeMarkdownText(str) {
+  return str.replace(/[[\]\\]/g, '\\$&');
+}
+
+function escapeMarkdownUrl(url) {
+  return url.replace(/\(/g, '%28').replace(/\)/g, '%29');
+}
+
+function parseDomain(url) {
+  try {
+    return new URL(url).hostname;
+  } catch (e) {
+    return '';
+  }
+}
+
+function isYouTubeUrl(url) {
+  return /(?:youtube\.com\/(?:watch|shorts|embed)|youtu\.be\/)/.test(url);
+}
+
 // ─── Context Menus ──────────────────────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -80,12 +102,7 @@ async function injectAndExtract(tabId, options = {}) {
   const settings = await getSettings();
 
   // Use the provided tab URL for domain detection
-  let domain = '';
-  try {
-    domain = new URL(tabUrl).hostname;
-  } catch (e) {
-    // Invalid URL, domain stays empty
-  }
+  const domain = parseDomain(tabUrl);
   const domainSelector = await getDomainSelector(domain);
 
   const turndownOptions = {
@@ -96,7 +113,7 @@ async function injectAndExtract(tabId, options = {}) {
   };
 
   // Check if YouTube — inject youtube.js too
-  const isYouTube = tabUrl.includes('youtube.com/watch');
+  const isYouTube = isYouTubeUrl(tabUrl);
 
   // Inject libraries
   const files = ['lib/readability.js'];
@@ -154,18 +171,20 @@ async function copyToClipboard(tabId, text) {
 async function downloadMarkdown(markdown, title) {
   const filename = slugifyFilename(title);
   const blob = new Blob([markdown], { type: 'text/markdown' });
-  const reader = new FileReader();
-
-  return new Promise((resolve) => {
-    reader.onloadend = () => {
-      chrome.downloads.download({
-        url: reader.result,
-        filename,
-        saveAs: false,
-      }, resolve);
-    };
-    reader.readAsDataURL(blob);
-  });
+  const url = URL.createObjectURL(blob);
+  try {
+    await new Promise((resolve, reject) => {
+      chrome.downloads.download({ url, filename, saveAs: false }, (downloadId) => {
+        if (chrome.runtime.lastError || !downloadId) {
+          reject(chrome.runtime.lastError?.message || 'Download failed');
+        } else {
+          resolve(downloadId);
+        }
+      });
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 // ─── Process Extraction Result ──────────────────────────────────────────────
@@ -184,10 +203,12 @@ async function processResult(result, mode) {
     selection: result.hasSelection ? (result.selection || '') : '',
   };
 
-  if (result.isYouTube && result.segments && Array.isArray(result.segments)) {
+  if (result.isYouTube && Array.isArray(result.segments) && result.segments.length > 0) {
     // YouTube transcript — format according to mode
     const ytFormatted = formatYouTubeTranscript(result, mode, settings);
     markdown = ytFormatted.markdown;
+  } else if (result.isYouTube) {
+    markdown = `No transcript available for "${result.title || 'this video'}".`;
   }
 
   markdown = applyMode(mode, markdown, metadata, settings);
@@ -210,14 +231,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     switch (info.menuItemId) {
       case 'copy-link': {
         const linkText = info.linkText || info.linkUrl;
-        const md = `[${linkText}](${info.linkUrl})`;
+        const md = `[${escapeMarkdownText(linkText)}](${escapeMarkdownUrl(info.linkUrl)})`;
         await copyToClipboard(tab.id, md);
         return;
       }
 
       case 'copy-image': {
-        const alt = 'image';
-        const md = `![${alt}](${info.srcUrl})`;
+        const md = `![image](${escapeMarkdownUrl(info.srcUrl)})`;
         await copyToClipboard(tab.id, md);
         return;
       }
@@ -311,14 +331,9 @@ async function handleExtractContent(message) {
     // For popup flow: don't inject Turndown (popup has it locally)
     // But DO inject Readability and content script
     const tabUrl = tab.url || '';
-    let domain = '';
-    try {
-      domain = new URL(tabUrl).hostname;
-    } catch (e) {
-      // Invalid URL (chrome://, about:blank, etc.) — domain stays empty
-    }
+    const domain = parseDomain(tabUrl);
     const domainSelector = await getDomainSelector(domain);
-    const isYouTube = tabUrl.includes('youtube.com/watch');
+    const isYouTube = isYouTubeUrl(tabUrl);
 
     const files = ['lib/readability.js'];
     if (isYouTube) {

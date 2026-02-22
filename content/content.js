@@ -8,8 +8,10 @@
   'use strict';
 
   function isYouTubePage() {
-    return window.location.hostname.includes('youtube.com') &&
-      window.location.pathname === '/watch';
+    const hostname = window.location.hostname;
+    const pathname = window.location.pathname;
+    return hostname.includes('youtube.com') &&
+      (pathname === '/watch' || pathname.startsWith('/shorts/') || pathname.startsWith('/embed/'));
   }
 
   function getSelectionHtml() {

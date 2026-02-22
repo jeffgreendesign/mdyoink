@@ -358,6 +358,10 @@ body {
   overflow-y: auto;
 }
 
+.editor:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
 .editor::placeholder {
   color: var(--text-tertiary);
 }
