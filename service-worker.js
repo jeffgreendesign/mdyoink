@@ -1,7 +1,7 @@
 // mdyoink service worker (Manifest V3)
 // ES module — all event listeners registered at top level
 
-import { applyMode, slugifyFilename, formatYouTubeTranscript, DEFAULT_SETTINGS } from './lib/output-modes.js';
+import { applyMode, slugifyFilename, formatYouTubeTranscript, deepMerge, DEFAULT_SETTINGS } from './lib/output-modes.js';
 
 // ─── Context Menus ──────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 async function getSettings() {
   const data = await chrome.storage.local.get('settings');
-  return Object.assign({}, DEFAULT_SETTINGS, data.settings || {});
+  return deepMerge(structuredClone(DEFAULT_SETTINGS), data.settings || {});
 }
 
 async function getDomainSelector(domain) {
@@ -184,7 +184,7 @@ async function processResult(result, mode) {
     selection: result.hasSelection ? (result.selection || '') : '',
   };
 
-  if (result.isYouTube) {
+  if (result.isYouTube && result.segments && Array.isArray(result.segments)) {
     // YouTube transcript — format according to mode
     const ytFormatted = formatYouTubeTranscript(result, mode, settings);
     markdown = ytFormatted.markdown;
