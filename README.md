@@ -15,7 +15,10 @@ A minimal Chrome/Brave extension that converts any webpage (or selection) to cle
 - **Strip links toggle** — remove URLs from Markdown links to save tokens
 - **Append to clipboard** — accumulate clips from multiple pages with `---` separators, then paste all at once
 - **Domain CSS selectors** — save custom selectors for repeat-visit sites (docs, MDN, etc.) for precise extraction
-- **YouTube transcript extraction** — pulls video transcripts directly from the page, no API key needed
+- **Shadow DOM support** — extracts content from Shadow DOM sites (MSN, web components) where other tools fail
+- **YouTube transcript extraction** — pulls video transcripts directly from the page, no API key needed, with configurable timestamp and format options
+- **Markdown formatting options** — heading style, bullet markers, code block style, link style, all configurable in settings
+- **Export/import domain selectors** — back up and share your custom selectors as JSON
 - **Keyboard shortcuts** — configurable hotkeys for quick copy/download
 - **Dark/light mode** — respects system preference
 - **Zero tracking** — no analytics, no telemetry, no external network requests
@@ -92,8 +95,7 @@ Manage all saved selectors in Settings.
 - [Readability.js](https://github.com/mozilla/readability) by Mozilla (Apache 2.0)
 - [Turndown](https://github.com/mixmark-io/turndown) by mixmark-io (MIT)
 - [Turndown Plugin GFM](https://github.com/mixmark-io/turndown-plugin-gfm) by mixmark-io (MIT)
-
-Spiritual successor to [markdownload](https://github.com/deathau/markdownload/) by deathau, built from scratch with zero inherited code.
+- Inspired by [markdownload](https://github.com/deathau/markdownload/) by deathau
 
 ## License
 
