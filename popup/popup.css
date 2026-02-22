@@ -118,7 +118,7 @@ body {
   flex: 1;
   padding: 6px 0;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 0;
   background: var(--bg);
   color: var(--text-secondary);
   font-family: var(--font-ui);
