@@ -26,7 +26,7 @@ echo ""
 echo "-- Checking content scripts for ES module imports..."
 for file in content/content.js content/youtube.js content/picker.js; do
   if [ ! -f "$file" ]; then continue; fi
-  MATCHES=$(grep -nE '^\s*(import\s|export\s)' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE '^\s*(import\s|export\s)' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  VIOLATION: $file uses ES module import/export (injected scripts cannot)"
     echo "$MATCHES" | sed 's/^/    /'
@@ -57,14 +57,14 @@ done
 
 # --- Rule 4: popup/ and options/ must not import from each other ---
 echo "-- Checking popup/options cross-imports..."
-POPUP_CROSS=$(grep -rnE "from\s+['\"](\.\./)?options/" popup/ 2>/dev/null | grep -v '^\s*//' || true)
+POPUP_CROSS=$(grep -rnE "from\s+['\"](\.\./)*options/" popup/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
 if [ -n "$POPUP_CROSS" ]; then
   echo "  VIOLATION: popup/ imports from options/"
   echo "$POPUP_CROSS" | sed 's/^/    /'
   VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
-OPTIONS_CROSS=$(grep -rnE "from\s+['\"](\.\./)?popup/" options/ 2>/dev/null | grep -v '^\s*//' || true)
+OPTIONS_CROSS=$(grep -rnE "from\s+['\"](\.\./)*popup/" options/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
 if [ -n "$OPTIONS_CROSS" ]; then
   echo "  VIOLATION: options/ imports from popup/"
   echo "$OPTIONS_CROSS" | sed 's/^/    /'
@@ -76,7 +76,7 @@ echo "-- Checking deepMerge is not redefined outside lib/..."
 REDEFINES=$(grep -rnE '^\s*(function\s+deepMerge|const\s+deepMerge|let\s+deepMerge|var\s+deepMerge)' \
   --include='*.js' . 2>/dev/null \
   | grep -v 'lib/output-modes.js' \
-  | grep -v '^\s*//' || true)
+  | grep -v ':[0-9]\+:\s*//' || true)
 if [ -n "$REDEFINES" ]; then
   echo "  VIOLATION: deepMerge redefined outside lib/output-modes.js"
   echo "$REDEFINES" | sed 's/^/    /'

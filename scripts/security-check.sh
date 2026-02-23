@@ -35,7 +35,7 @@ echo ""
 echo "-- Checking for eval() usage..."
 while IFS= read -r file; do
   [ -z "$file" ] && continue
-  MATCHES=$(grep -nE '\beval\s*\(' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE '\beval\s*\(' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  WARN: eval() in $file"
     echo "$MATCHES" | sed 's/^/    /'
@@ -49,7 +49,7 @@ while IFS= read -r file; do
   [ -z "$file" ] && continue
   # Skip .example and .template files
   case "$file" in *.example|*.template) continue ;; esac
-  MATCHES=$(grep -nEi '(api_key|apikey|api_secret|secret_key|password|token|private_key)\s*[:=]\s*["\x27][A-Za-z0-9_\-]{8,}' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nEi '(api_key|apikey|api_secret|secret_key|password|token|private_key)\s*[:=]\s*["\x27][A-Za-z0-9_\-]{8,}' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  WARN: Possible hardcoded secret in $file"
     echo "$MATCHES" | sed 's/^/    /'
@@ -61,7 +61,7 @@ done <<< "$SRC_FILES"
 echo "-- Checking for innerHTML assignments..."
 while IFS= read -r file; do
   [ -z "$file" ] && continue
-  MATCHES=$(grep -nE '\.innerHTML\s*=' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE '\.innerHTML\s*=' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  WARN: innerHTML assignment in $file"
     echo "$MATCHES" | sed 's/^/    /'
@@ -73,7 +73,7 @@ done <<< "$SRC_FILES"
 echo "-- Checking for document.write..."
 while IFS= read -r file; do
   [ -z "$file" ] && continue
-  MATCHES=$(grep -nE 'document\.write\s*\(' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE 'document\.write\s*\(' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  WARN: document.write() in $file"
     echo "$MATCHES" | sed 's/^/    /'
@@ -88,7 +88,7 @@ while IFS= read -r file; do
   [ -z "$file" ] && continue
   # Look for template literals building markdown links: `[${...}](${...})`
   # that don't use escapeMarkdownText/escapeMarkdownUrl
-  MATCHES=$(grep -nE '\[.*\$\{.*\}\].*\(.*\$\{.*\}\)' "$file" 2>/dev/null | grep -v 'escapeMark' | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE '\[.*\$\{.*\}\].*\(.*\$\{.*\}\)' "$file" 2>/dev/null | grep -v 'escapeMark' | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
     echo "  WARN: Possible unescaped markdown interpolation in $file"
     echo "$MATCHES" | sed 's/^/    /'
@@ -101,12 +101,12 @@ echo "-- Checking for unguarded new URL()..."
 while IFS= read -r file; do
   [ -z "$file" ] && continue
   # Find lines with new URL( that aren't inside a try block (rough heuristic)
-  MATCHES=$(grep -nE '\bnew URL\(' "$file" 2>/dev/null | grep -v '^\s*//' || true)
+  MATCHES=$(grep -nE '\bnew URL\(' "$file" 2>/dev/null | grep -v '^[0-9]\+:\s*//' || true)
   if [ -n "$MATCHES" ]; then
-    # Check if there's a try block within 3 lines before each match
+    # Heuristic: 10-line window balances catching typical try blocks vs. false negatives from distant ones
     while IFS= read -r match; do
       LINE_NUM=$(echo "$match" | cut -d: -f1)
-      START=$((LINE_NUM > 3 ? LINE_NUM - 3 : 1))
+      START=$((LINE_NUM > 10 ? LINE_NUM - 10 : 1))
       CONTEXT=$(sed -n "${START},${LINE_NUM}p" "$file")
       if ! echo "$CONTEXT" | grep -q 'try'; then
         echo "  WARN: new URL() without try/catch in $file:$LINE_NUM"
