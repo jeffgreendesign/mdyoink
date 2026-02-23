@@ -57,14 +57,14 @@ done
 
 # --- Rule 4: popup/ and options/ must not import from each other ---
 echo "-- Checking popup/options cross-imports..."
-POPUP_CROSS=$(grep -rnE "from\s+['\"](\.\./)*options/" popup/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
+POPUP_CROSS=$(grep -rnE "(from|import)\s+['\"](\.\./)*options/" popup/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
 if [ -n "$POPUP_CROSS" ]; then
   echo "  VIOLATION: popup/ imports from options/"
   echo "$POPUP_CROSS" | sed 's/^/    /'
   VIOLATIONS=$((VIOLATIONS + 1))
 fi
 
-OPTIONS_CROSS=$(grep -rnE "from\s+['\"](\.\./)*popup/" options/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
+OPTIONS_CROSS=$(grep -rnE "(from|import)\s+['\"](\.\./)*popup/" options/ 2>/dev/null | grep -v ':[0-9]\+:\s*//' || true)
 if [ -n "$OPTIONS_CROSS" ]; then
   echo "  VIOLATION: options/ imports from popup/"
   echo "$OPTIONS_CROSS" | sed 's/^/    /'
@@ -73,7 +73,7 @@ fi
 
 # --- Rule 5: deepMerge must only be defined in lib/output-modes.js ---
 echo "-- Checking deepMerge is not redefined outside lib/..."
-REDEFINES=$(grep -rnE '^\s*(function\s+deepMerge|const\s+deepMerge|let\s+deepMerge|var\s+deepMerge)' \
+REDEFINES=$(grep -rnE '^\s*(export\s+(default\s+)?)?(function\s+deepMerge|const\s+deepMerge|let\s+deepMerge|var\s+deepMerge)' \
   --include='*.js' . 2>/dev/null \
   | grep -v 'lib/output-modes.js' \
   | grep -v ':[0-9]\+:\s*//' || true)
