@@ -1,0 +1,47 @@
+---
+description: Rules for mdyoink Chrome extension JavaScript files
+globs: ["*.js", "**/*.js"]
+---
+
+# Chrome Extension Rules (Manifest V3)
+
+## Architecture
+
+- No npm, no build step. Libraries vendored in lib/.
+- Service worker is an ES module. Content scripts are NOT modules — they are injected via chrome.scripting.executeScript.
+- Never add import/export statements to content/ files.
+
+## Import Boundaries
+
+- Only service-worker.js, popup/popup.js, and options/options.js may import from lib/.
+- popup/ and options/ must never import from each other.
+- content/picker.js is a self-contained IIFE — no external dependencies.
+- deepMerge lives in lib/output-modes.js — reuse it, never redefine.
+
+## Safety
+
+- Always guard DOM property access (node.rows, node.children) before indexing.
+- Always wrap `new URL()` in try/catch — tabs can have chrome://, about:blank, or empty URLs.
+- Escape user text in markdown: use escapeMarkdownText() for `[text]`, escapeMarkdownUrl() for `(url)`.
+- Verify array data (Array.isArray + length check) before iterating.
+- Never use eval(), innerHTML assignments, or document.write().
+- Never use Object.assign or spread for settings — use structuredClone(DEFAULT_SETTINGS) + deepMerge.
+
+## Chrome APIs
+
+- Check chrome.runtime.lastError in callbacks (especially chrome.downloads.download).
+- Use URL.createObjectURL for download blobs, not FileReader.readAsDataURL.
+- Always revoke object URLs in a finally block.
+- Picker communicates via chrome.runtime.sendMessage, not window globals.
+
+## Accessibility
+
+- Every interactive element needs :focus-visible style using var(--accent).
+- Form inputs need associated label elements (.visually-hidden if invisible).
+- Radio-like groups need role="radiogroup" container + role="radio" + aria-checked on buttons.
+
+## CSS
+
+- Use CSS custom properties (var(--accent), var(--border)) for all colors.
+- Use clip-path: inset(100%) for visual hiding, not clip: rect().
+- Never remove outline without providing a :focus-visible replacement.

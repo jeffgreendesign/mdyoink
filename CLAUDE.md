@@ -54,3 +54,35 @@
 - Use URL.createObjectURL for download blobs, not FileReader.readAsDataURL.
 - Always revoke object URLs in a finally block.
 - Check chrome.runtime.lastError in chrome.downloads.download callbacks.
+
+## Quality Gates
+
+### Security Scanning
+
+- Run `bash scripts/security-check.sh` to scan for: eval(), hardcoded secrets, innerHTML assignments, document.write(), unescaped markdown interpolation, unguarded `new URL()`.
+- Use `--strict` flag to fail on findings.
+- Vendored libraries in lib/ (readability.js, turndown.js, turndown-plugin-gfm.js) are excluded from scanning.
+
+### Import Boundaries
+
+- Run `bash scripts/check-boundaries.sh` to enforce architectural boundaries.
+- Rules enforced:
+  - content/ scripts (injected via executeScript) must NOT use ES module import/export.
+  - Only service-worker.js, popup/popup.js, and options/options.js may import from lib/.
+  - popup/ and options/ must not import from each other.
+  - deepMerge must only be defined in lib/output-modes.js.
+- Run both scripts before committing multi-file changes.
+
+### Workflow
+
+- Small changes (single file): implement directly.
+- Multi-file changes: use `/design` command to propose first — wait for approval before writing code.
+
+## Prohibited Operations
+
+These are blocked in .claude/settings.json and must never be attempted:
+- `rm -rf` / `rm -r` — destructive file deletion
+- `git push --force` / `git reset --hard` / `git clean -f` — destructive git operations
+- `curl` / `wget` — no downloading and executing unreviewed remote code
+- `npm install` / `npx` — no unreviewed dependency additions (libs are vendored)
+- `eval` — no dynamic code execution
