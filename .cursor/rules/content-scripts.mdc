@@ -1,0 +1,30 @@
+---
+description: Rules specific to content scripts injected into web pages
+globs: ["content/*.js"]
+---
+
+# Content Script Rules
+
+## Isolation
+
+- Content scripts run in the page context via chrome.scripting.executeScript.
+- They are NOT ES modules — never use import/export.
+- They cannot access extension popup or options code.
+- They CAN use chrome.runtime.sendMessage to communicate with the service worker.
+
+## picker.js Specifics
+
+- Self-contained IIFE. All styles are inline (no CSS files) to avoid page CSS conflicts.
+- Event listeners use capture phase (third arg `true`) to intercept before page handlers.
+- Guard against double injection: check `window.__mdyoink_picker_active` first.
+- Guard el.className: SVG elements have SVGAnimatedString, not a string. Always check `typeof el.className === 'string'`.
+
+## youtube.js Specifics
+
+- Must handle all YouTube URL forms: /watch, /shorts/, /embed/, youtu.be/.
+- Verify transcript segment data exists and is an array before iterating.
+
+## content.js Specifics
+
+- Scope parameter controls extraction: 'article', 'fullpage', 'selection', or null.
+- Guard all DOM property access before indexing (node.rows, node.children can be empty/missing).

@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(bash scripts/security-check.sh*)",
+      "Bash(bash scripts/check-boundaries.sh*)",
+      "Bash(ls *)",
+      "Bash(wc *)",
+      "Bash(cat manifest.json*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -r *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -f*)",
+      "Bash(git checkout -- .)",
+      "Bash(git restore .)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(npm install*)",
+      "Bash(npx *)",
+      "Bash(eval *)"
+    ]
+  }
+}
