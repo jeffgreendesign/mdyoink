@@ -10,4 +10,4 @@
 
 ## General
 
-- [ ] **Add version metadata to vendored libraries** — `lib/readability.js`, `lib/turndown.js`, and `lib/turndown-plugin-gfm.js` lack version comments. Add version headers to track what's vendored.
+- [x] **Add version metadata to vendored libraries** — `lib/readability.js`, `lib/turndown.js`, and `lib/turndown-plugin-gfm.js` now include vendored dependency headers.
